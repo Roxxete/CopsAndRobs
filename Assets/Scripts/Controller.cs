@@ -191,9 +191,9 @@ public class Controller : MonoBehaviour
     public void EndGame(bool end)
     {
         if(end)
-            finalMessage.text = "You Win!";
+            finalMessage.text = "GANASTE!!!";
         else
-            finalMessage.text = "You Lose!";
+            finalMessage.text = "Has perdido :(";
         playAgainButton.interactable = true;
         state = Constants.End;
     }
