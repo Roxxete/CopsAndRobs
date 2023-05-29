@@ -19,7 +19,8 @@ public class Controller : MonoBehaviour
     private int state;
     private int clickedTile = -1;
     private int clickedCop = 0;
-                    
+    List<Tile> robSelectable = new List<Tile>();
+
     void Start()
     {        
         InitTiles();
@@ -220,13 +221,20 @@ public class Controller : MonoBehaviour
 
     public void FindSelectableTiles(bool cop)
     {
-                 
-        int indexcurrentTile;        
 
-        if (cop==true)
+        int otro = 1;
+        int indexcurrentTile;
+
+        if (cop == true)
             indexcurrentTile = cops[clickedCop].GetComponent<CopMove>().currentTile;
         else
             indexcurrentTile = robber.GetComponent<RobberMove>().currentTile;
+
+        if (clickedCop == 1)
+        {
+            otro = 0;
+        }
+        int indexotro = cops[otro].GetComponent<CopMove>().currentTile;
 
         //La ponemos rosa porque acabamos de hacer un reset
         tiles[indexcurrentTile].current = true;
@@ -234,11 +242,72 @@ public class Controller : MonoBehaviour
         //Cola para el BFS
         Queue<Tile> nodes = new Queue<Tile>();
 
+        List<Tile> selectable = new List<Tile>();
+
+
+        nodes.Enqueue(tiles[indexcurrentTile]);
         //TODO: Implementar BFS. Los nodos seleccionables los ponemos como selectable=true
         //Tendrás que cambiar este código por el BFS
-        for(int i = 0; i < Constants.NumTiles; i++)
+
+
+        while (nodes.Count > 0)
         {
-            tiles[i].selectable = true;
+            Tile tile = nodes.Dequeue();
+
+            if (selectable.Contains(tile))
+            {
+                continue;
+            }
+            else
+            {
+                if (tile != tiles[indexotro])
+                {
+                    selectable.Add(tile);
+                }
+                else
+                {
+                    continue;
+                }
+            }
+            foreach (var i in tiles[indexcurrentTile].adjacency)
+            {
+                if (tiles[i] != tiles[indexotro])
+                {
+                    if (!selectable.Contains(tiles[i]))
+                    {
+                        nodes.Enqueue(tiles[i]);
+                    }
+                    foreach (var x in tiles[i].adjacency)
+                    {
+                        if (!selectable.Contains(tiles[x]))
+                        {
+                            nodes.Enqueue(tiles[x]);
+                        }
+                    }
+                }
+            }
+        }
+        if (cop == true)
+        {
+            foreach (var tile in selectable)
+            {
+                if (tile != tiles[indexcurrentTile])
+                {
+                    tile.selectable = true;
+                }
+
+            }
+        }
+        else
+        {
+            foreach (var tile in selectable)
+            {
+                if (tile != tiles[indexcurrentTile])
+                {
+                    tile.selectable = true;
+                    robSelectable.Add(tile);
+                }
+            }
         }
 
 
